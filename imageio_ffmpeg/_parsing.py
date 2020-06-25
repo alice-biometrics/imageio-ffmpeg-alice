@@ -136,13 +136,13 @@ def parse_ffmpeg_header(text):
     # matches can be empty, see #171, assume nframes = inf
     # the regexp omits values of "1k tbr" which seems a specific edge-case #262
     # it seems that tbr is generally to be preferred #262
-    fps = 0
+    default_fps = 30
+    candidate_fps = []
     for line in (videolines[0], videolines[-1]):
         matches = re.findall(r" ([0-9]+\.?[0-9]*) (tbr|fps)", line)
-        matches.sort(key=lambda x: x[1] == "tbr", reverse=True)
         if matches:
-            fps = float(matches[0][0].strip())
-    meta["fps"] = fps
+            candidate_fps += [int(float(m[0])) for m in matches if int(float(m[0])) in range(10, 60)]
+    meta["fps"] = max(candidate_fps) if len(candidate_fps) > 0 else default_fps
 
     # get the size of the original stream, of the form 460x320 (w x h)
     line = videolines[0]
@@ -164,6 +164,14 @@ def parse_ffmpeg_header(text):
                 meta["size"], meta["source_size"]
             )
         )
+
+    # get the rotate metadata
+    reo_rotate = re.compile('rotate\s+:\s([0-9]+)')
+    match = reo_rotate.search(text)
+    rotate = 0
+    if match is not None:
+        rotate = match.groups()[0]
+    meta["rotate"] = rotate
 
     # get duration (in seconds)
     line = [l for l in lines if "Duration: " in l][0]
