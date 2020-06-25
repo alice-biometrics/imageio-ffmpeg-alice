@@ -156,15 +156,6 @@ def parse_ffmpeg_header(text):
     parts = line[match.start() : match.end() - 1].split("x")
     meta["size"] = tuple(map(int, parts))
 
-    # Check the two sizes
-    if meta["source_size"] != meta["size"]:
-        logger.warning(
-            "The frame size for reading {} is "
-            "different from the source frame size {}.".format(
-                meta["size"], meta["source_size"]
-            )
-        )
-
     # get the rotate metadata
     reo_rotate = re.compile('rotate\s+:\s([0-9]+)')
     match = reo_rotate.search(text)
