@@ -4,10 +4,9 @@ Setup script for imageio-ffmpeg.
 
 import os
 import sys
-from invoke import Context
 from setuptools import setup
 
-from tasks import get_ffmpeg_binary
+from download_binaries import download_ffmpeg_binary
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -44,11 +43,7 @@ Linux package manager (if that is possible), because this package would
 simply depend on ffmpeg in that case.
 """.lstrip()
 
-
-#
-ctx = Context()
-get_ffmpeg_binary(ctx)
-
+download_ffmpeg_binary()
 
 setup(
     name="imageio-ffmpeg",
@@ -65,7 +60,7 @@ setup(
     provides=["imageio_ffmpeg"],
     python_requires=">=3.4",
     setup_requires=["pip>19"],
-    install_requires=["invoke"],
+    install_requires=[],
     packages=["imageio_ffmpeg"],
     package_dir={"imageio_ffmpeg": "imageio_ffmpeg"},
     package_data={"imageio_ffmpeg": ["binaries/*.*"]},
